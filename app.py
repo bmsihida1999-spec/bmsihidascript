@@ -11,7 +11,7 @@ import time
 import json
 import os
 from datetime import datetime
-import pywhatkit as pwk
+# import pywhatkit as pwk  # Disabled for server deployment
 import schedule
 import sqlite3
 from werkzeug.security import generate_password_hash
@@ -210,12 +210,18 @@ class VisaBookingBot:
         self.driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
         
     def send_whatsapp_notification(self, message):
-        """إرسال إشعار WhatsApp"""
+        """إرسال إشعار WhatsApp - معطل للنشر على الخادم"""
         try:
             # استخدام رقم WhatsApp من متغيرات البيئة أو القيمة الافتراضية
             phone_number = os.environ.get('WHATSAPP_NUMBER', self.user_data.get('whatsapp_number', '+212650731946'))
-            pwk.sendwhatmsg_instantly(phone_number, message, wait_time=10, tab_close=True)
-            print(f"تم إرسال إشعار WhatsApp: {message}")
+            
+            # For server deployment, we'll just log the message instead of sending WhatsApp
+            print(f"📱 WhatsApp notification would be sent to {phone_number}: {message}")
+            
+            # TODO: Implement alternative notification method (email, webhook, etc.)
+            # pwk.sendwhatmsg_instantly(phone_number, message, wait_time=10, tab_close=True)
+            
+            print(f"تم تسجيل إشعار WhatsApp: {message}")
         except Exception as e:
             print(f"خطأ في إرسال WhatsApp: {str(e)}")
     
