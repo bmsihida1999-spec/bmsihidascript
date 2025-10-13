@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4ECDC4;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle -->
+  <circle cx="256" cy="256" r="240" fill="url(#grad1)" stroke="#fff" stroke-width="16"/>
+  
+  <!-- Calendar icon -->
+  <rect x="150" y="128" width="212" height="192" rx="16" fill="#fff" opacity="0.95"/>
+  <rect x="150" y="128" width="212" height="48" rx="16" fill="#333"/>
+  
+  <!-- Calendar holes -->
+  <circle cx="192" cy="108" r="12" fill="#333"/>
+  <circle cx="320" cy="108" r="12" fill="#333"/>
+  
+  <!-- Calendar grid -->
+  <line x1="192" y1="208" x2="192" y2="288" stroke="#333" stroke-width="4"/>
+  <line x1="256" y1="208" x2="256" y2="288" stroke="#333" stroke-width="4"/>
+  <line x1="320" y1="208" x2="320" y2="288" stroke="#333" stroke-width="4"/>
+  <line x1="166" y1="224" x2="346" y2="224" stroke="#333" stroke-width="4"/>
+  <line x1="166" y1="256" x2="346" y2="256" stroke="#333" stroke-width="4"/>
+  <line x1="166" y1="288" x2="346" y2="288" stroke="#333" stroke-width="4"/>
+  
+  <!-- Spain flag colors -->
+  <rect x="180" y="240" width="24" height="16" fill="#AA151B"/>
+  <rect x="180" y="256" width="24" height="16" fill="#F1BF00"/>
+  <rect x="180" y="272" width="24" height="16" fill="#AA151B"/>
+  
+  <!-- Checkmark -->
+  <circle cx="256" cy="380" r="48" fill="#4CAF50"/>
+  <path d="M232 380 L248 396 L280 364" stroke="#fff" stroke-width="8" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

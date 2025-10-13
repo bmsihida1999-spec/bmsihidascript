@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>مراقب مواعيد فيزا إسبانيا</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- PWA Meta Tags -->
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#4ECDC4">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="فيزا إسبانيا">
+    <link rel="apple-touch-icon" href="/static/icon-192x192.svg">
+    <link rel="icon" type="image/svg+xml" href="/static/icon-192x192.svg">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 100%;
+            padding: 0 10px;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.95);
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border-radius: 15px 15px 0 0 !important;
+            text-align: center;
+            padding: 15px;
+        }
+        
+        .card-header h1 {
+            font-size: 1.5rem;
+            margin: 0;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+            font-size: 16px; /* Prevents zoom on iOS */
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #4ECDC4;
+            box-shadow: 0 0 0 0.2rem rgba(78, 205, 196, 0.25);
+        }
+        
+        .btn {
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        /* Mobile-specific improvements */
+        @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                padding: 0 5px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .form-control, .form-select {
+                padding: 15px;
+                font-size: 16px;
+            }
+            
+            .btn {
+                padding: 15px 20px;
+                font-size: 16px;
+            }
+            
+            .row .col-md-6 {
+                margin-bottom: 15px;
+            }
+            
+            .card-header h1 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* Touch-friendly improvements */
+        .btn, .form-control, .form-select {
+            min-height: 48px; /* Minimum touch target size */
+        }
+        
+        /* Status indicators */
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+        
+        .status-active {
+            background-color: #28a745;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-inactive {
+            background-color: #dc3545;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(45deg, #FF6B6B, #FF8E53);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .status-card {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .spinner-border {
+            width: 1rem;
+            height: 1rem;
+        }
+        
+        .feature-icon {
+            font-size: 2rem;
+            color: #4ECDC4;
+            margin-bottom: 10px;
+        }
+        
+        .feature-card {
+            text-align: center;
+            padding: 20px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="mb-0">
+                            <i class="fas fa-calendar-check me-2"></i>
+                            مراقب مواعيد فيزا إسبانيا التلقائي
+                        </h2>
+                        <p class="mb-0 mt-2">نظام ذكي لمراقبة وحجز مواعيد فيزا إسبانيا تلقائياً</p>
+                    </div>
+                    <div class="card-body">
+                        <!-- معلومات النظام -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="feature-card">
+                                    <i class="fas fa-clock feature-icon"></i>
+                                    <h6>مراقبة كل 30 دقيقة</h6>
+                                    <small>فحص تلقائي للمواعيد المتاحة</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="feature-card">
+                                    <i class="fab fa-whatsapp feature-icon"></i>
+                                    <h6>إشعارات WhatsApp</h6>
+                                    <small>تنبيهات فورية عند توفر موعد</small>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="feature-card">
+                                    <i class="fas fa-robot feature-icon"></i>
+                                    <h6>حجز تلقائي</h6>
+                                    <small>حجز الموعد تلقائياً عند العثور عليه</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- نموذج البيانات -->
+                        <form id="userForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="full_name" class="form-label">
+                                        <i class="fas fa-user me-1"></i>
+                                        الاسم الكامل
+                                    </label>
+                                    <input type="text" class="form-control" id="full_name" name="full_name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="passport_number" class="form-label">
+                                        <i class="fas fa-passport me-1"></i>
+                                        رقم جواز السفر
+                                    </label>
+                                    <input type="text" class="form-control" id="passport_number" name="passport_number" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="birth_date" class="form-label">
+                                        <i class="fas fa-calendar me-1"></i>
+                                        تاريخ الميلاد
+                                    </label>
+                                    <input type="date" class="form-control" id="birth_date" name="birth_date" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="phone" class="form-label">
+                                        <i class="fas fa-phone me-1"></i>
+                                        رقم الهاتف
+                                    </label>
+                                    <input type="tel" class="form-control" id="phone" name="phone" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="email" class="form-label">
+                                        <i class="fas fa-envelope me-1"></i>
+                                        البريد الإلكتروني
+                                    </label>
+                                    <input type="email" class="form-control" id="email" name="email" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="visa_type" class="form-label">
+                                        <i class="fas fa-file-alt me-1"></i>
+                                        نوع الفيزا
+                                    </label>
+                                    <select class="form-select" id="visa_type" name="visa_type" required>
+                                        <option value="">اختر نوع الفيزا</option>
+                                        <option value="tourism">سياحة</option>
+                                        <option value="business">عمل</option>
+                                        <option value="family">زيارة عائلية</option>
+                                        <option value="study">دراسة</option>
+                                        <option value="medical">علاج طبي</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="city" class="form-label">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    المدينة المفضلة للموعد
+                                </label>
+                                <select class="form-select" id="city" name="city" required>
+                                    <option value="">اختر المدينة</option>
+                                    <option value="casablanca">الدار البيضاء</option>
+                                    <option value="rabat">الرباط</option>
+                                    <option value="tangier">طنجة</option>
+                                    <option value="agadir">أكادير</option>
+                                    <option value="fes">فاس</option>
+                                    <option value="marrakech">مراكش</option>
+                                </select>
+                            </div>
+                            
+                            <!-- أزرار التحكم -->
+                            <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                                <button type="button" class="btn btn-success btn-lg me-md-2" id="startBtn">
+                                    <i class="fas fa-play me-2"></i>
+                                    <span id="startBtnText">ابدأ المراقبة الآن</span>
+                                    <span id="startSpinner" class="spinner-border spinner-border-sm ms-2 d-none"></span>
+                                </button>
+                                <button type="button" class="btn btn-danger btn-lg" id="stopBtn" disabled>
+                                    <i class="fas fa-stop me-2"></i>
+                                    توقف الآن
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- حالة النظام -->
+                        <div class="status-card d-none" id="statusCard">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <h5 class="mb-1">
+                                        <i class="fas fa-info-circle me-2"></i>
+                                        حالة النظام
+                                    </h5>
+                                    <p class="mb-0" id="statusText">النظام متوقف</p>
+                                </div>
+                                <div class="text-end">
+                                    <small id="lastCheck">آخر فحص: غير محدد</small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- رسائل التنبيه -->
+                        <div id="alertContainer" class="mt-3"></div>
+                    </div>
+                </div>
+                
+                <!-- معلومات إضافية -->
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="fas fa-info-circle me-2"></i>
+                            معلومات مهمة
+                        </h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                سيتم فحص المواعيد كل 30 دقيقة تلقائياً
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                ستصلك إشعارات WhatsApp فور توفر موعد
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-check-circle text-success me-2"></i>
+                                سيتم حجز الموعد تلقائياً باستخدام بياناتك
+                            </li>
+                            <li class="mb-2">
+                                <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                                تأكد من صحة جميع البيانات قبل البدء
+                            </li>
+                            <li>
+                                <i class="fas fa-shield-alt text-info me-2"></i>
+                                بياناتك محفوظة محلياً وآمنة تماماً
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let monitoringActive = false;
+        let statusInterval;
+
+        // عناصر DOM
+        const startBtn = document.getElementById('startBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const startBtnText = document.getElementById('startBtnText');
+        const startSpinner = document.getElementById('startSpinner');
+        const statusCard = document.getElementById('statusCard');
+        const statusText = document.getElementById('statusText');
+        const lastCheck = document.getElementById('lastCheck');
+        const alertContainer = document.getElementById('alertContainer');
+        const userForm = document.getElementById('userForm');
+
+        // بدء المراقبة
+        startBtn.addEventListener('click', async function() {
+            if (!validateForm()) {
+                showAlert('يرجى ملء جميع الحقول المطلوبة', 'danger');
+                return;
+            }
+
+            const formData = new FormData(userForm);
+            
+            startBtnText.textContent = 'جاري البدء...';
+            startSpinner.classList.remove('d-none');
+            startBtn.disabled = true;
+
+            try {
+                const response = await fetch('/start_monitoring', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    monitoringActive = true;
+                    updateUI();
+                    showAlert(result.message, 'success');
+                    startStatusUpdates();
+                } else {
+                    showAlert(result.message, 'info');
+                }
+            } catch (error) {
+                showAlert('حدث خطأ في الاتصال', 'danger');
+            } finally {
+                startBtnText.textContent = 'ابدأ المراقبة الآن';
+                startSpinner.classList.add('d-none');
+                startBtn.disabled = false;
+            }
+        });
+
+        // إيقاف المراقبة
+        stopBtn.addEventListener('click', async function() {
+            try {
+                const response = await fetch('/stop_monitoring', {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                monitoringActive = false;
+                updateUI();
+                showAlert(result.message, 'warning');
+                stopStatusUpdates();
+            } catch (error) {
+                showAlert('حدث خطأ في الاتصال', 'danger');
+            }
+        });
+
+        // تحديث واجهة المستخدم
+        function updateUI() {
+            if (monitoringActive) {
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+                statusCard.classList.remove('d-none');
+                statusText.textContent = 'النظام يعمل - مراقبة المواعيد نشطة';
+                
+                // تعطيل تعديل النموذج
+                const inputs = userForm.querySelectorAll('input, select');
+                inputs.forEach(input => input.disabled = true);
+            } else {
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+                statusText.textContent = 'النظام متوقف';
+                
+                // تفعيل تعديل النموذج
+                const inputs = userForm.querySelectorAll('input, select');
+                inputs.forEach(input => input.disabled = false);
+            }
+        }
+
+        // بدء تحديثات الحالة
+        function startStatusUpdates() {
+            statusInterval = setInterval(async function() {
+                try {
+                    const response = await fetch('/status');
+                    const status = await response.json();
+                    
+                    lastCheck.textContent = `آخر فحص: ${status.last_check}`;
+                    
+                    if (!status.monitoring_active && monitoringActive) {
+                        monitoringActive = false;
+                        updateUI();
+                        showAlert('تم إيقاف المراقبة', 'info');
+                    }
+                } catch (error) {
+                    console.error('خطأ في تحديث الحالة:', error);
+                }
+            }, 30000); // كل 30 ثانية
+        }
+
+        // إيقاف تحديثات الحالة
+        function stopStatusUpdates() {
+            if (statusInterval) {
+                clearInterval(statusInterval);
+            }
+        }
+
+        // التحقق من صحة النموذج
+        function validateForm() {
+            const requiredFields = userForm.querySelectorAll('[required]');
+            for (let field of requiredFields) {
+                if (!field.value.trim()) {
+                    field.focus();
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // عرض رسائل التنبيه
+        function showAlert(message, type) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+            alertDiv.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            alertContainer.innerHTML = '';
+            alertContainer.appendChild(alertDiv);
+            
+            // إزالة التنبيه بعد 5 ثوان
+            setTimeout(() => {
+                if (alertDiv.parentNode) {
+                    alertDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // تحميل البيانات المحفوظة عند تحميل الصفحة
+        window.addEventListener('load', function() {
+            // يمكن إضافة كود لتحميل البيانات المحفوظة مسبقاً
+            updateUI();
+        });
+
+        // تسجيل Service Worker للـ PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/service-worker.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, function(err) {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+
+        // طلب إذن الإشعارات
+        if ('Notification' in window && navigator.serviceWorker) {
+            if (Notification.permission === 'default') {
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === 'granted') {
+                        console.log('تم منح إذن الإشعارات');
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
