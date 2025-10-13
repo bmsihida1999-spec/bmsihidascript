@@ -420,7 +420,10 @@ if __name__ == '__main__':
     if not os.path.exists('templates'):
         os.makedirs('templates')
     
-    # تشغيل التطبيق مع إعدادات الإنتاج
-    port = int(os.environ.get('PORT', 5000))
-    debug_mode = os.environ.get('FLASK_ENV') == 'development'
-    app.run(debug=debug_mode, host='0.0.0.0', port=port)
+    # في بيئة الإنتاج، Gunicorn سيتولى تشغيل التطبيق
+    # app.run() مطلوب فقط للتطوير المحلي
+    if __name__ == '__main__':
+        # تشغيل التطبيق للتطوير المحلي فقط
+        port = int(os.environ.get('PORT', 5000))
+        debug_mode = os.environ.get('FLASK_ENV') == 'development'
+        app.run(debug=debug_mode, host='0.0.0.0', port=port)
