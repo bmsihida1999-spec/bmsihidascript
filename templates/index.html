@@ -137,6 +137,75 @@
             50% { opacity: 0.5; }
             100% { opacity: 1; }
         }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stats-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            opacity: 0.8;
+        }
+        
+        .stats-content h4 {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .stats-content p {
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        /* تحسين الجدول */
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            font-weight: 600;
+        }
+
+        .table td {
+            vertical-align: middle;
+            border-color: #e9ecef;
+        }
+
+        .table-hover tbody tr:hover {
+            background-color: rgba(102, 126, 234, 0.1);
+        }
+
+        /* تحسين الأزرار */
+        #refreshDashboard {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 10px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        #refreshDashboard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
             padding: 12px 30px;
             font-weight: 600;
             transition: all 0.3s ease;
@@ -377,6 +446,111 @@
                 </div>
             </div>
         </div>
+
+        <!-- قسم لوحة التحكم والنتائج الحقيقية -->
+        <div class="row justify-content-center mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">
+                            <i class="fas fa-chart-line me-2"></i>
+                            لوحة التحكم - النتائج الحقيقية
+                        </h3>
+                        <p class="mb-0 mt-2">إحصائيات وسجلات الحجوزات الناجحة</p>
+                    </div>
+                    <div class="card-body">
+                        <!-- إحصائيات سريعة -->
+                        <div class="row mb-4">
+                            <div class="col-md-3 mb-3">
+                                <div class="stats-card">
+                                    <div class="stats-icon">
+                                        <i class="fas fa-calendar-check"></i>
+                                    </div>
+                                    <div class="stats-content">
+                                        <h4 id="totalBookings">0</h4>
+                                        <p>إجمالي الحجوزات</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="stats-card">
+                                    <div class="stats-icon">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div class="stats-content">
+                                        <h4 id="totalUsers">0</h4>
+                                        <p>عدد العملاء</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="stats-card">
+                                    <div class="stats-icon">
+                                        <i class="fas fa-percentage"></i>
+                                    </div>
+                                    <div class="stats-content">
+                                        <h4 id="successRate">0%</h4>
+                                        <p>معدل النجاح</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <div class="stats-card">
+                                    <div class="stats-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="stats-content">
+                                        <h4 id="lastBooking">-</h4>
+                                        <p>آخر حجز</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- سجل الحجوزات الأخيرة -->
+                        <div class="row">
+                            <div class="col-12">
+                                <h5 class="mb-3">
+                                    <i class="fas fa-history me-2"></i>
+                                    آخر الحجوزات الناجحة
+                                </h5>
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>التاريخ</th>
+                                                <th>الاسم</th>
+                                                <th>نوع الفيزا</th>
+                                                <th>الجنسية</th>
+                                                <th>الحالة</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="bookingsTable">
+                                            <tr>
+                                                <td colspan="5" class="text-center text-muted">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    لا توجد حجوزات بعد
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- زر تحديث البيانات -->
+                        <div class="row mt-3">
+                            <div class="col-12 text-center">
+                                <button type="button" class="btn btn-primary" id="refreshDashboard">
+                                    <i class="fas fa-sync-alt me-2"></i>
+                                    تحديث البيانات
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -532,10 +706,69 @@
             }, 5000);
         }
 
-        // تحميل البيانات المحفوظة عند تحميل الصفحة
+        // تحديث لوحة التحكم
+        async function updateDashboard() {
+            try {
+                const response = await fetch('/api/dashboard_data');
+                const data = await response.json();
+                
+                // تحديث الإحصائيات
+                document.getElementById('totalBookings').textContent = data.total_bookings || 0;
+                document.getElementById('totalUsers').textContent = data.total_users || 0;
+                document.getElementById('successRate').textContent = (data.success_rate || 0) + '%';
+                document.getElementById('lastBooking').textContent = data.last_booking || '-';
+                
+                // تحديث جدول الحجوزات
+                const bookingsTable = document.getElementById('bookingsTable');
+                if (data.recent_bookings && data.recent_bookings.length > 0) {
+                    bookingsTable.innerHTML = '';
+                    data.recent_bookings.forEach(booking => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${booking.date}</td>
+                            <td>${booking.name}</td>
+                            <td>${booking.visa_type}</td>
+                            <td>${booking.nationality}</td>
+                            <td><span class="badge bg-success">نجح</span></td>
+                        `;
+                        bookingsTable.appendChild(row);
+                    });
+                } else {
+                    bookingsTable.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center text-muted">
+                                <i class="fas fa-info-circle me-2"></i>
+                                لا توجد حجوزات بعد
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('خطأ في تحديث لوحة التحكم:', error);
+            }
+        }
+
+        // زر تحديث لوحة التحكم
+        document.getElementById('refreshDashboard').addEventListener('click', function() {
+            const button = this;
+            const icon = button.querySelector('i');
+            
+            // تأثير التحميل
+            icon.classList.add('fa-spin');
+            button.disabled = true;
+            
+            updateDashboard().finally(() => {
+                icon.classList.remove('fa-spin');
+                button.disabled = false;
+            });
+        });
+
+        // تحديث لوحة التحكم تلقائياً كل دقيقة
+        setInterval(updateDashboard, 60000);
+
+        // تحديث لوحة التحكم عند تحميل الصفحة
         window.addEventListener('load', function() {
-            // يمكن إضافة كود لتحميل البيانات المحفوظة مسبقاً
-            updateUI();
+            updateDashboard();
         });
 
         // تسجيل Service Worker للـ PWA

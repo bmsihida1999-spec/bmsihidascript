@@ -1132,6 +1132,54 @@ def get_status():
         'last_check': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     })
 
+@app.route('/api/dashboard_data')
+def get_dashboard_data():
+    """Get dashboard data from notification system database"""
+    try:
+        if NOTIFICATIONS_ENABLED:
+            # الحصول على الإحصائيات من نظام الإشعارات
+            stats = notification_system.get_statistics()
+            recent_bookings = notification_system.get_recent_bookings(limit=10)
+            
+            # تحويل البيانات للتنسيق المطلوب
+            dashboard_data = {
+                'total_bookings': stats.get('total_bookings', 0),
+                'total_users': stats.get('unique_users', 0),
+                'success_rate': stats.get('success_rate', 0),
+                'last_booking': stats.get('last_booking_time', '-'),
+                'recent_bookings': []
+            }
+            
+            # تحويل الحجوزات الأخيرة
+            for booking in recent_bookings:
+                dashboard_data['recent_bookings'].append({
+                    'date': booking.get('created_at', ''),
+                    'name': booking.get('full_name', 'غير محدد'),
+                    'visa_type': booking.get('visa_type', 'غير محدد'),
+                    'nationality': booking.get('nationality', 'مغربي'),
+                    'status': 'نجح'
+                })
+            
+            return jsonify(dashboard_data)
+        else:
+            # بيانات تجريبية في حالة عدم توفر نظام الإشعارات
+            return jsonify({
+                'total_bookings': 0,
+                'total_users': 0,
+                'success_rate': 0,
+                'last_booking': '-',
+                'recent_bookings': []
+            })
+    except Exception as e:
+        print(f"خطأ في الحصول على بيانات لوحة التحكم: {e}")
+        return jsonify({
+            'total_bookings': 0,
+            'total_users': 0,
+            'success_rate': 0,
+            'last_booking': '-',
+            'recent_bookings': []
+        })
+
 if __name__ == '__main__':
     # إنشاء مجلد القوالب إذا لم يكن موجوداً
     if not os.path.exists('templates'):
