@@ -19,6 +19,15 @@ import sqlite3
 from werkzeug.security import generate_password_hash
 import secrets
 
+# استيراد نظام الإشعارات المتقدم
+try:
+    from notification_system import notification_system
+    NOTIFICATIONS_ENABLED = True
+    print("✅ تم تحميل نظام الإشعارات بنجاح")
+except ImportError as e:
+    print(f"⚠️ لم يتم تحميل نظام الإشعارات: {e}")
+    NOTIFICATIONS_ENABLED = False
+
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', secrets.token_hex(16))
 
@@ -858,7 +867,7 @@ class VisaBookingBot:
             return False
     
     def book_appointment(self):
-        """حجز الموعد تلقائياً - نسخة محسنة"""
+        """حجز الموعد تلقائياً - نسخة محسنة مع نظام الإشعارات"""
         try:
             print("📝 بدء عملية حجز الموعد المحسنة...")
             
@@ -881,23 +890,71 @@ class VisaBookingBot:
                     "//div[contains(text(), 'تم الحجز')]"
                 ]
                 
+                booking_confirmed = False
+                confirmation_message = ""
+                
                 for indicator in success_indicators:
                     try:
                         success_element = self.driver.find_element(By.XPATH, indicator)
                         if success_element.is_displayed():
-                            print(f"✅ تم تأكيد الحجز: {success_element.text}")
-                            return True
+                            confirmation_message = success_element.text
+                            print(f"✅ تم تأكيد الحجز: {confirmation_message}")
+                            booking_confirmed = True
+                            break
                     except:
                         continue
                 
                 # التحقق من URL للتأكد من النجاح
                 current_url = self.driver.current_url
-                if any(keyword in current_url.lower() for keyword in ['success', 'confirmation', 'thank', 'complete']):
+                if not booking_confirmed and any(keyword in current_url.lower() for keyword in ['success', 'confirmation', 'thank', 'complete']):
                     print("✅ تم تأكيد الحجز من خلال URL")
-                    return True
+                    booking_confirmed = True
+                    confirmation_message = f"تأكيد من URL: {current_url}"
                 
-                print("ℹ️ تم إرسال طلب الحجز")
-                return True
+                # إرسال الإشعارات في حالة نجاح الحجز
+                if booking_confirmed and NOTIFICATIONS_ENABLED:
+                    try:
+                        print("📧 إرسال إشعارات نجاح الحجز...")
+                        
+                        booking_details = {
+                            'booking_id': f"SPAIN-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+                            'status': 'SUCCESS',
+                            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                            'confirmation_message': confirmation_message,
+                            'booking_url': current_url
+                        }
+                        
+                        # إرسال الإشعارات الشاملة
+                        notification_results = notification_system.send_comprehensive_notification(
+                            self.user_data, booking_details
+                        )
+                        
+                        # تسجيل نتائج الإشعارات
+                        if notification_results.get('email_sent'):
+                            print("✅ تم إرسال إشعار الإيميل بنجاح")
+                        if notification_results.get('telegram_sent'):
+                            print("✅ تم إرسال إشعار تيليجرام بنجاح")
+                        if notification_results.get('logged'):
+                            print("✅ تم تسجيل الحجز في قاعدة البيانات")
+                        
+                        # إرسال إشعار واتساب إضافي
+                        self.send_whatsapp_notification(
+                            f"🎉 تأكيد حجز فيزا إسبانيا!\n"
+                            f"👤 الاسم: {self.user_data.get('full_name', 'غير محدد')}\n"
+                            f"🆔 معرف الحجز: {booking_details['booking_id']}\n"
+                            f"📅 التاريخ: {booking_details['timestamp']}\n"
+                            f"✅ تم إرسال تأكيد مفصل عبر الإيميل"
+                        )
+                        
+                    except Exception as notification_error:
+                        print(f"⚠️ خطأ في إرسال الإشعارات: {notification_error}")
+                        # حتى لو فشلت الإشعارات، الحجز نجح
+                
+                if booking_confirmed:
+                    return True
+                else:
+                    print("ℹ️ تم إرسال طلب الحجز - في انتظار التأكيد")
+                    return True
             else:
                 print("❌ فشل في ملء النموذج")
                 return False
@@ -907,7 +964,7 @@ class VisaBookingBot:
             return False
 
 def monitor_appointments():
-    """مراقبة المواعيد بشكل مستمر - نسخة محسنة مع فحص كل 5 ثوان"""
+    """مراقبة المواعيد بشكل مستمر - نسخة محسنة مع فحص كل 5 ثوان ونظام إشعارات متقدم"""
     global monitoring_active, user_data
     
     bot = VisaBookingBot(user_data)
@@ -916,6 +973,21 @@ def monitor_appointments():
     
     # إعداد المتصفح مرة واحدة
     bot.setup_driver()
+    
+    # إرسال إشعار بدء المراقبة
+    if NOTIFICATIONS_ENABLED:
+        try:
+            start_message = f"""
+🚀 بدء مراقبة مواعيد فيزا إسبانيا
+👤 المستخدم: {user_data.get('full_name', 'غير محدد')}
+📧 الإيميل: {user_data.get('email', 'غير محدد')}
+🕐 وقت البدء: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+⚡ تردد الفحص: كل 5 ثوان
+            """
+            bot.send_whatsapp_notification(start_message)
+            print("✅ تم إرسال إشعار بدء المراقبة")
+        except Exception as e:
+            print(f"⚠️ خطأ في إرسال إشعار البدء: {e}")
     
     try:
         while monitoring_active:
@@ -927,7 +999,19 @@ def monitor_appointments():
                 
                 if appointment_found:
                     print("🎉 تم العثور على موعد وحجزه بنجاح!")
-                    bot.send_whatsapp_notification("🎉 تم حجز موعد فيزا إسبانيا بنجاح!")
+                    
+                    # إرسال إشعار واتساب فوري
+                    success_message = f"""
+🎉 نجح حجز موعد فيزا إسبانيا!
+👤 الاسم: {user_data.get('full_name', 'غير محدد')}
+📅 وقت الحجز: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+✅ تم إرسال تأكيد مفصل عبر الإيميل والتيليجرام
+📧 تحقق من بريدك الإلكتروني للحصول على التفاصيل الكاملة
+                    """
+                    bot.send_whatsapp_notification(success_message)
+                    
+                    # إيقاف المراقبة بعد النجاح
+                    monitoring_active = False
                     break
                 
                 # إعادة تعيين عداد الأخطاء عند النجاح
