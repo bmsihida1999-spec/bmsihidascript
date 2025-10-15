@@ -46,6 +46,35 @@ class NotificationSystem:
             conn = sqlite3.connect('notifications.db')
             cursor = conn.cursor()
             
+            # إنشاء جدول booking_logs للتوافق مع باقي النظام
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS booking_logs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    booking_date TEXT NOT NULL,
+                    full_name TEXT NOT NULL,
+                    passport_number TEXT,
+                    email TEXT,
+                    phone TEXT,
+                    visa_type TEXT,
+                    nationality TEXT,
+                    booking_id TEXT,
+                    status TEXT DEFAULT 'SUCCESS'
+                )
+            ''')
+            
+            # إنشاء جدول notification_status لتتبع حالة الإشعارات
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS notification_status (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    booking_id TEXT NOT NULL,
+                    email_sent BOOLEAN DEFAULT 0,
+                    telegram_sent BOOLEAN DEFAULT 0,
+                    whatsapp_sent BOOLEAN DEFAULT 0,
+                    created_at TEXT NOT NULL
+                )
+            ''')
+            
+            # إنشاء جدول booking_notifications للتوافق مع الكود الموجود
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS booking_notifications (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -224,6 +253,25 @@ class NotificationSystem:
             
             booking_id = booking_details.get('booking_id', 'AUTO-' + str(int(datetime.now().timestamp())))
             
+            # إدراج في جدول booking_logs
+            cursor.execute('''
+                INSERT INTO booking_logs 
+                (booking_date, full_name, passport_number, email, phone, 
+                 visa_type, nationality, booking_id, status)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (
+                datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                user_data.get('full_name', ''),
+                user_data.get('passport_number', ''),
+                user_data.get('email', ''),
+                user_data.get('phone_number', ''),
+                user_data.get('visa_type', 'فيزا دراسة'),
+                user_data.get('nationality', ''),
+                booking_id,
+                'SUCCESS'
+            ))
+            
+            # إدراج في جدول booking_notifications للتوافق
             cursor.execute('''
                 INSERT INTO booking_notifications 
                 (booking_id, user_name, user_email, visa_type, appointment_date, 
@@ -278,6 +326,20 @@ class NotificationSystem:
             conn = sqlite3.connect('notifications.db')
             cursor = conn.cursor()
             
+            # تحديث جدول notification_status
+            cursor.execute('''
+                INSERT OR REPLACE INTO notification_status 
+                (booking_id, email_sent, telegram_sent, whatsapp_sent, created_at)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (
+                booking_details['booking_id'],
+                results['email_sent'],
+                results['telegram_sent'],
+                False,  # whatsapp_sent - سيتم تحديثه لاحقاً
+                datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            ))
+            
+            # تحديث جدول booking_notifications للتوافق
             cursor.execute('''
                 UPDATE booking_notifications 
                 SET email_sent = ?, telegram_sent = ?, notification_sent = ?
